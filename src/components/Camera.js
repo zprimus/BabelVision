@@ -19,6 +19,7 @@ class Camera extends React.Component {
             buttonNegative: 'Cancel',
           }}
           captureAudio={false}
+          onTextRecognized={(textObject)=>{this.props.updateTextObject(textObject)}}
         />
     );
   }
