@@ -82,6 +82,8 @@ project.ext.react = [
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+apply plugin: 'com.google.gms.google-services'
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -185,6 +187,13 @@ android {
 }
 
 dependencies {
+    // Firebase BoM
+    implementation platform('com.google.firebase:firebase-bom:28.1.0')
+    // Firebase analytics
+    implementation 'com.google.firebase:firebase-analytics'
+    // Firebase on-device text recognition 
+    implementation 'com.google.android.gms:play-services-mlkit-text-recognition:16.2.0'
+
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules

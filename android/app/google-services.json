@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1027533911028",
+    "project_id": "babelvision-99ef6",
+    "storage_bucket": "babelvision-99ef6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1027533911028:android:087ff0f4fbe26a5425ffa1",
+        "android_client_info": {
+          "package_name": "com.babelvision"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1027533911028-crugrvoqoo5ashdujklgp4q3l73j0m7a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcdL9aRQSGEjWBQ4PPIE2Rvj1Ib1deJbc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1027533911028-crugrvoqoo5ashdujklgp4q3l73j0m7a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
