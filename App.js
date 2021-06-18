@@ -12,27 +12,34 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableOpacity
+  TouchableOpacity,
+  ActivityIndicator
 } from 'react-native';
 
 import Camera from './src/components/Camera.js';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import BannerBar from './src/components/BannerBar.js';
+import SnapButton from './src/components/SnapButton.js';
+import LangButton from './src/components/LangButton.js';
+
+import api_nlp from './src/api/api_nlp.js';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      langFrom: 'English',
-      langTo: 'Spanish',
+      langFrom: 'en',
+      langTo: 'es',
       textOriginal: '',
       textTranslation: '',
       pauseUpdate: false,
+      liveUpdate: false,
+      isLoading: false,
     }
   }
 
   updateTextObject = (obj) => {
-    if(this.state.pauseUpdate === false) {
+    if(!this.state.pauseUpdate || !this.state.liveUpdate) {
       arraySize = obj["textBlocks"].length;
       textBuffer = '';
       for(i=0;i<arraySize;i++) {
@@ -42,57 +49,81 @@ class App extends React.Component {
           continue;
         }
       }
-
       this.setState({textOriginal: textBuffer});
     } else {
       return;
     }
-
-    console.log(this.state.pauseUpdate)
   }
 
-  handleSnap() {
+  handleSnap = () => {
+    this.setState({isLoading: true});
+
+    if(this.state.liveUpdate) {
+      this.togglePauseUpdate();
+    } else {
+      this.handleTranslate(this.state.textOriginal, this.state.langFrom, this.state.langTo);
+    }
+  }
+
+  updateTranslationText = (newText) => {
+    let textTranslation = newText.translated_text[this.state.langTo];
+    this.setState({textTranslation: textTranslation});
+    this.setState({isLoading: false});
+  }
+
+  togglePauseUpdate = () => {
     this.setState({pauseUpdate: !this.state.pauseUpdate});
+  }
+
+  toggleLiveUpdate = () => {
+    this.setState({liveUpdate: !this.state.liveUpdate});
+  }
+
+  handleTranslate = async (text, from, to) => {
+    let data = await api_nlp.get('', {
+      params: {
+        text: text,
+        from: from,
+        to: to
+      },
+    })
+    .then(({ data }) => this.updateTranslationText(data))
+    .catch((err) => {
+        console.log(err)
+    });
   }
 
   render() {
     return (
       <SafeAreaView style={{flex: 1}}>
         <View style={styles.cameraContainer}>
-          <TouchableOpacity style={styles.langButton}>
-              <Text style={{color: '#FFFFFF'}}>
-                {this.state.langFrom}
-              </Text>
-          </TouchableOpacity>
+          <LangButton
+              text={this.state.langFrom}
+          />
           <Camera
             updateTextObject={this.updateTextObject}
           />
         </View>
         <View style={styles.translationContainer}>
-          <TouchableOpacity style={styles.langButton}>
-            <Text style={{color: '#FFFFFF'}}>
-              {this.state.langTo}
-            </Text>
-          </TouchableOpacity>
-          
+          <LangButton
+            text={this.state.langTo}
+          />
+          {
+            this.state.isLoading &&
+            <View style={styles.loadingStatus}>
+              <ActivityIndicator size="large" color="#FBA23A"/>
+            </View>
+          }
           <Text>
-            {this.state.textOriginal}
+            {this.state.textTranslation}
           </Text>
         </View>
-        <View style={styles.header}>
-          <View style={styles.headerLogo}>
-            <Text style={{color: 'white'}}>Babel Vision</Text>
-          </View>
-          <TouchableOpacity style={styles.settingsButton}>
-              <Icon name="gear" size={30} color="#fff" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.snapButton}>
-          <View style={styles.snapButtonCircleOuter}>
-            <TouchableOpacity style={styles.snapButtonCircleInner} onPress={() => this.handleSnap()}>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <BannerBar/>
+        <SnapButton
+          handleSnap={this.handleSnap}
+          pause={this.state.pauseUpdate}
+          liveUpdate={this.state.liveUpdate}
+        />
       </SafeAreaView>
     );
   }
@@ -100,62 +131,24 @@ class App extends React.Component {
 
 const styles = StyleSheet.create({
   cameraContainer: {
-    height: '50%',
+    height: '40%',
   },
   translationContainer: {
     flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center',
     backgroundColor: '#FFFFFF'
   },
-  langButton: {
-    position: 'absolute', 
-    top: 0,
-    padding: 10,
-    backgroundColor: '#000000',
-    borderBottomLeftRadius: 5,
-    borderBottomRightRadius: 5,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: 60,
-    width: '100%',
-    position: 'absolute',
-    bottom: 0,
-    backgroundColor: '#000000',
-  },
-  snapButton: {
+  loadingStatus: {
     flex: 0,
     flexDirection: 'row',
     justifyContent: 'center',
     position: 'absolute',
+    top: 0,
     bottom: 0,
-    left: 10,
-    right: 10,
-    
-  },
-  snapButtonCircleOuter: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 80,
-    width: 80,
-    borderRadius: 40,
-    backgroundColor: '#000000',
-  },
-  snapButtonCircleInner: {
-    height: 50,
-    width: 50,
-    borderRadius: 25,
-    backgroundColor: '#808080',
-  },
-  headerLogo: {
-    paddingLeft: 20
-  },
-  settingsButton: {
-    paddingRight: 20
+    left: 0,
+    right: 0
   }
 });
 
